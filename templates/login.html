@@ -46,4 +46,21 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="generate-btn">
+                    <button type="submit" class="generate-btn">Send Magic Link</button>
+                </form>
+                
+                <div class="login-info">
+                    <p>A secure login link will be sent to your email.</p>
+                    <p>New hunters will automatically be registered.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="footer-note">
+            <p>Authorized access only. All login attempts are monitored by Imperial Security.</p>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

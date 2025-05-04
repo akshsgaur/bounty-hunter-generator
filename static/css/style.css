@@ -355,6 +355,16 @@ textarea {
     text-align: center;
 }
 
+.success-message {
+    background-color: rgba(0, 255, 0, 0.2);
+    border: 1px solid #00FF00;
+    color: #00FF00;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
 /* Yoda advice section */
 .yoda-advice-section {
     margin-top: 40px;
@@ -443,6 +453,130 @@ textarea {
     animation: pulse 1s infinite;
 }
 
+/* Auth Navigation Styles */
+.auth-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.user-info {
+    color: #FFD700;
+    margin-right: 20px;
+    font-size: 1rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-link {
+    color: #FFF;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 215, 0, 0.2);
+    color: #FFD700;
+}
+
+.login-link {
+    background-color: rgba(255, 215, 0, 0.3);
+    color: #FFD700;
+    border: 1px solid #FFD700;
+}
+
+.login-link:hover {
+    background-color: rgba(255, 215, 0, 0.5);
+}
+
+/* Login Page Styles */
+.login-info {
+    margin-top: 20px;
+    text-align: center;
+    color: #AAA;
+    font-size: 0.9rem;
+}
+
+.footer-note {
+    margin-top: 40px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+/* Login Prompt */
+.login-prompt {
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.login-prompt p {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+}
+
+.login-prompt a {
+    color: #FFD700;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}
+
+/* Account Page Styles */
+.account-info {
+    margin-bottom: 30px;
+}
+
+.account-footer {
+    margin-top: 30px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.account-footer h3 {
+    color: #FFD700;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.activity-log {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    padding: 15px;
+    border-radius: 5px;
+    color: #AAA;
+    font-style: italic;
+}
+
+.logout-btn {
+    background-color: #8B0000;
+    color: #FFF;
+}
+
+.logout-btn:hover {
+    background-color: #FF0000;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .form-grid {
@@ -474,85 +608,36 @@ textarea {
         max-width: 95%;
         padding: 15px;
     }
-    /* Add this to your style.css for logo styling */
-    .logo-image {
-        max-width: 600px;
-        width: 100%;
-        height: auto;
-        margin-bottom: 20px;
-        text-shadow: 0 0 10px #FFD700;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    @media (max-width: 768px) {
-        .logo-image {
-            max-width: 90%;
-        }
-    }
-    .email-bounty-section {
-        margin-top: 40px;
-        text-align: center;
-        border-top: 2px solid #FFD700;
-        padding-top: 30px;
+    
+    .auth-nav {
+        flex-direction: column;
+        align-items: flex-end;
     }
     
-    .email-bounty-section h3 {
-        color: #FFD700;
-        font-size: 1.8rem;
+    .user-info {
+        margin-right: 0;
         margin-bottom: 10px;
-        letter-spacing: 2px;
     }
-    
-    .email-bounty-section p {
-        color: #AAA;
-        margin-bottom: 20px;
+}
+
+/* Add this to your style.css for logo styling */
+.logo-image {
+    max-width: 600px;
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #FFD700;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    .logo-image {
+        max-width: 90%;
     }
-    
-    .email-form {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    
-    #email-input {
-        padding: 12px;
-        width: 300px;
-        background-color: #111;
-        border: 1px solid #444;
-        border-radius: 5px;
-        color: #FFF;
-        font-family: inherit;
-    }
-    
-    .send-btn {
-        background-color: #4CAF50;
-        color: #FFF;
-        border: none;
-        padding: 12px 24px;
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: bold;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-    }
-    
-    .send-btn:hover {
-        background-color: #45a049;
-        transform: scale(1.05);
-    }
-    
-    .send-btn:disabled {
-        background-color: #555;
-        color: #888;
-        cursor: not-allowed;
-    }
-    
-    /* Email bounty section - improved styling */
+}
+
 .email-bounty-section {
     margin-top: 40px;
     text-align: center;
@@ -565,78 +650,53 @@ textarea {
     font-size: 1.8rem;
     margin-bottom: 10px;
     letter-spacing: 2px;
-    text-shadow: 0 0 10px #FFD700;
 }
 
 .email-bounty-section p {
-    color: #DDD;
+    color: #AAA;
     margin-bottom: 20px;
-    font-size: 1.1rem;
 }
 
 .email-form {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 15px;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
 #email-input {
-    padding: 12px 20px;
-    width: 350px;
-    background-color: rgba(0, 0, 0, 0.7);
-    border: 2px solid #FFD700;
+    padding: 12px;
+    width: 300px;
+    background-color: #111;
+    border: 1px solid #444;
     border-radius: 5px;
     color: #FFF;
     font-family: inherit;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-#email-input:focus {
-    outline: none;
-    border-color: #FFF;
-    box-shadow: 0 0 10px #FFD700;
-}
-
-#email-input::placeholder {
-    color: #999;
 }
 
 .send-btn {
-    background: linear-gradient(45deg, #FFD700, #FFA500);
-    color: #000;
-    border: 2px solid #FFD700;
-    padding: 12px 30px;
-    font-size: 1.1rem;
+    background-color: #4CAF50;
+    color: #FFF;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     font-weight: bold;
     cursor: pointer;
     border-radius: 5px;
     transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-    min-width: 160px;
 }
 
 .send-btn:hover {
-    background: linear-gradient(45deg, #FFA500, #FFD700);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
-}
-
-.send-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    background-color: #45a049;
+    transform: scale(1.05);
 }
 
 .send-btn:disabled {
-    background: #555;
+    background-color: #555;
     color: #888;
     cursor: not-allowed;
-    border-color: #444;
-    box-shadow: none;
 }
 
 /* Email bounty section - improved styling */
@@ -754,5 +814,4 @@ textarea {
     #email-input {
         width: 90%;
     }
-}
 }

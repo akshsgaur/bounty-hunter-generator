@@ -15,6 +15,21 @@
     <div class="nebula"></div>
     
     <div class="container">
+        <!-- Auth Navigation -->
+        <div class="auth-nav">
+            {% if is_authenticated %}
+                <div class="user-info">Welcome, {{ user_email }}</div>
+                <div class="nav-links">
+                    <a href="{{ url_for('account') }}" class="nav-link">Account</a>
+                    <a href="{{ url_for('logout') }}" class="nav-link">Log Out</a>
+                </div>
+            {% else %}
+                <div class="nav-links">
+                    <a href="{{ url_for('login') }}" class="nav-link login-link">Log In</a>
+                </div>
+            {% endif %}
+        </div>
+        
         <div class="bounty-card">
             <div class="bounty-header">
                 <h1>WANTED</h1>
@@ -72,6 +87,7 @@
                 <div id="yoda-advice-text" class="yoda-advice hidden"></div>
                 <audio id="yoda-audio" class="hidden"></audio>
             </div>
+            
             <div class="email-bounty-section" style="margin-top: 40px; text-align: center; border-top: 2px solid #FFD700; padding-top: 30px;">
                 <h3 style="color: #FFD700; font-size: 1.8rem; margin-bottom: 10px; letter-spacing: 2px; text-shadow: 0 0 10px #FFD700;">Send Bounty Intel</h3>
                 <p style="color: #DDD; margin-bottom: 20px; font-size: 1.1rem;">Share this bounty with fellow hunters</p>

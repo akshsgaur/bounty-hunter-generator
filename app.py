@@ -1,15 +1,15 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 import requests
 import json
 import os
 import time
 from config import Config
-
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import os
-
+from functools import wraps
+from stytch import Client as StytchClient
+from stytch.core.response_base import StytchError
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -18,6 +18,58 @@ app.secret_key = app.config['SECRET_KEY']
 # Configure API endpoints via Cloudflare AI Gateway
 openai_endpoint = f"https://gateway.ai.cloudflare.com/v1/{app.config['CLOUDFLARE_ACCOUNT_ID']}/{app.config['CLOUDFLARE_GATEWAY_ID']}/openai/v1/chat/completions"
 replicate_endpoint = f"https://gateway.ai.cloudflare.com/v1/{app.config['CLOUDFLARE_ACCOUNT_ID']}/{app.config['CLOUDFLARE_GATEWAY_ID']}/replicate/v1/predictions"
+
+# Initialize Stytch client
+stytch_client = StytchClient(
+    project_id=app.config['STYTCH_PROJECT_ID'],
+    secret=app.config['STYTCH_SECRET'],
+    environment=app.config['STYTCH_ENV']
+)
+
+# Authentication decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not is_authenticated():
+            flash('Please log in to access this page', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def is_authenticated():
+    """Check if the user is authenticated by validating Stytch session"""
+    stytch_session_token = session.get('stytch_session_token')
+    if not stytch_session_token:
+        return False
+    
+    try:
+        # Validate session token with Stytch
+        resp = stytch_client.sessions.authenticate(session_token=stytch_session_token)
+        return True
+    except StytchError as e:
+        # Session has expired or is invalid, clear it
+        session.pop('stytch_session_token', None)
+        app.logger.error(f"Session validation error: {e}")
+        return False
+    except Exception as e:
+        app.logger.error(f"Unexpected error in authentication: {e}")
+        return False
+
+def get_user_email():
+    """Get the email of the authenticated user"""
+    stytch_session_token = session.get('stytch_session_token')
+    if not stytch_session_token:
+        return None
+    
+    try:
+        # Get user info from Stytch
+        resp = stytch_client.sessions.authenticate(session_token=stytch_session_token)
+        if resp.user and resp.user.emails and len(resp.user.emails) > 0:
+            return resp.user.emails[0].email
+        return None
+    except Exception as e:
+        app.logger.error(f"Error getting user email: {e}")
+        return None
 
 def generate_target_details(species, danger_level, bounty_value, special_skills="", known_associates="", last_known_location=""):
     """Generate target details using OpenAI via Cloudflare AI Gateway"""
@@ -136,6 +188,86 @@ def generate_target_image(target_details):
         app.logger.error(f"Error generating image: {e}")
         return None
 
+# Authentication routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Handle login requests"""
+    if is_authenticated():
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        if not email:
+            flash('Email is required', 'error')
+            return render_template('login.html')
+        
+        try:
+            # Send magic link email
+            resp = stytch_client.magic_links.email.login_or_create(
+                email=email,
+                login_magic_link_url=url_for('authenticate', _external=True),
+                signup_magic_link_url=url_for('authenticate', _external=True)
+            )
+            flash('Check your email for a magic link to log in', 'success')
+            return render_template('login.html', email_sent=True)
+        
+        except StytchError as e:
+            app.logger.error(f"Stytch error: {e}")
+            flash('An error occurred while sending the magic link. Please try again.', 'error')
+            return render_template('login.html')
+        
+    return render_template('login.html')
+
+@app.route('/authenticate')
+def authenticate():
+    """Handle magic link authentication"""
+    token = request.args.get('token')
+    if not token:
+        flash('Invalid authentication request', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        # Verify the magic link token
+        auth_resp = stytch_client.magic_links.authenticate(
+            token=token,
+            session_duration_minutes=60 * 24  # 24 hours
+        )
+        
+        # Store the session token
+        session['stytch_session_token'] = auth_resp.session_token
+        session['user_id'] = auth_resp.user_id
+        
+        flash('You have successfully logged in!', 'success')
+        return redirect(url_for('index'))
+    
+    except StytchError as e:
+        app.logger.error(f"Authentication error: {e}")
+        flash('Invalid or expired magic link. Please try again.', 'error')
+        return redirect(url_for('login'))
+
+@app.route('/logout')
+def logout():
+    """Handle logout requests"""
+    stytch_session_token = session.get('stytch_session_token')
+    if stytch_session_token:
+        try:
+            # Revoke the session
+            stytch_client.sessions.revoke(session_token=stytch_session_token)
+        except Exception as e:
+            app.logger.error(f"Error revoking session: {e}")
+    
+    # Clear the session
+    session.clear()
+    flash('You have been logged out', 'success')
+    return redirect(url_for('login'))
+
+@app.route('/account')
+@login_required
+def account():
+    """Display user account information"""
+    user_email = get_user_email()
+    return render_template('account.html', email=user_email)
+
 @app.route('/')
 def index():
     """Render the main page"""
@@ -145,9 +277,16 @@ def index():
     ]
     danger_levels = ["Low", "Medium", "High", "Extreme"]
     
-    return render_template('index.html', species_list=species_list, danger_levels=danger_levels)
+    user_email = get_user_email() if is_authenticated() else None
+    
+    return render_template('index.html', 
+                          species_list=species_list, 
+                          danger_levels=danger_levels,
+                          is_authenticated=is_authenticated(),
+                          user_email=user_email)
 
 @app.route('/generate_bounty', methods=['POST'])
+@login_required
 def generate_bounty():
     """Generate a bounty target based on form data"""
     if request.method == 'POST':
@@ -197,7 +336,12 @@ def generate_bounty():
         # Store in session for potential later use
         session['bounty'] = target_details
         
-        return render_template('bounty.html', bounty=target_details)
+        user_email = get_user_email()
+        
+        return render_template('bounty.html', 
+                              bounty=target_details, 
+                              is_authenticated=is_authenticated(),
+                              user_email=user_email)
     
     return redirect(url_for('index'))
 
@@ -209,6 +353,7 @@ def format_number_filter(value):
 
 
 @app.route('/download_bounty')
+@login_required
 def download_bounty():
     """Download the bounty as JSON"""
     if 'bounty' in session:
@@ -217,6 +362,7 @@ def download_bounty():
     return redirect(url_for('index'))
 
 @app.route('/get_yoda_advice/<bounty_id>', methods=['GET'])
+@login_required
 def get_yoda_advice(bounty_id):
     """Generate Yoda's advice for the bounty hunter"""
     # Get the bounty details from session
@@ -265,6 +411,7 @@ Write in Yoda's distinctive speaking style and give tactical advice on how to ap
         return jsonify({"error": "Failed to get Yoda's advice"}), 500
     
 @app.route('/email_bounty', methods=['POST'])
+@login_required
 def email_bounty():
     """Email the bounty details to the specified email address"""
     try:
@@ -353,4 +500,3 @@ def email_bounty():
 
 if __name__ == '__main__':
     app.run(debug=True, port="3000")
-

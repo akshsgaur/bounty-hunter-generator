@@ -14,3 +14,8 @@ class Config:
     SMTP_PORT = 587
     SENDER_EMAIL = os.getenv('SENDER_EMAIL')
     SENDER_PASSWORD = os.getenv('SENDER_PASSWORD')  # App password for Gmail
+    # Stytch Authentication Settings
+    STYTCH_PROJECT_ID = os.getenv("STYTCH_PROJECT_ID")
+    STYTCH_SECRET = os.getenv("STYTCH_SECRET")
+    STYTCH_ENV = os.getenv("STYTCH_ENV", "test")  # 'test' or
+    
