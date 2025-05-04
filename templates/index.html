@@ -54,6 +54,9 @@
                 <p>You must <a href="{{ url_for('login') }}">log in</a> to generate bounties.</p>
             </div>
         {% else %}
+            <div class="bounty-actions">
+                <a href="{{ url_for('account') }}" class="view-collection-btn">View Your Bounty Collection</a>
+            </div>
             <div class="form-container">
                 <form action="{{ url_for('generate_bounty') }}" method="post">
                     <div class="form-grid">

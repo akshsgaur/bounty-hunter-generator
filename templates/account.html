@@ -57,10 +57,36 @@
         </div>
         
         <div class="account-footer">
-            <h3>Recent Activity</h3>
-            <div class="activity-log">
-                <p>No recent bounty hunting activity to display.</p>
-            </div>
+            <h3>Your Bounty Collection</h3>
+            {% if bounties %}
+                <div class="bounty-collection">
+                    {% for bounty in bounties %}
+                        <div class="bounty-card-mini">
+                            <div class="bounty-mini-content">
+                                <div class="bounty-mini-image">
+                                    {% if bounty.image_url %}
+                                        <img src="{{ bounty.image_url }}" alt="Image of {{ bounty.name }}">
+                                    {% else %}
+                                        <div class="no-image">No image</div>
+                                    {% endif %}
+                                </div>
+                                <div class="bounty-mini-details">
+                                    <h4>{{ bounty.name }}</h4>
+                                    <p class="bounty-mini-title">{{ bounty.title }}</p>
+                                    <p class="bounty-mini-reward">{{ bounty.bounty_value|int|format_number }} Credits</p>
+                                    <p class="bounty-mini-species">{{ bounty.species }} | {{ bounty.danger_level }} Threat</p>
+                                    <p class="bounty-mini-date">Added: {{ bounty.created_at.strftime('%Y-%m-%d') if bounty.created_at else 'Unknown' }}</p>
+                                    <a href="{{ url_for('view_bounty', bounty_id=bounty.bounty_id) }}" class="bounty-mini-view-btn">View Bounty</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="activity-log">
+                    <p>You haven't generated any bounties yet. <a href="{{ url_for('index') }}">Generate your first bounty</a>.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
     

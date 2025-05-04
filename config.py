@@ -18,4 +18,11 @@ class Config:
     STYTCH_PROJECT_ID = os.getenv("STYTCH_PROJECT_ID")
     STYTCH_SECRET = os.getenv("STYTCH_SECRET")
     STYTCH_ENV = os.getenv("STYTCH_ENV", "test")  # 'test' or
+    MONGO_USERNAME = os.getenv("MONGO_USERNAME", "goduser")
+    MONGO_PASSWORD = os.getenv("MONGO_PASSWORD", "bunny123")
+    MONGO_CLUSTER = os.getenv("MONGO_CLUSTER", "cluster0.r50y3sr.mongodb.net")
+    MONGO_DBNAME = os.getenv("MONGO_DBNAME", "bounty_hunter")
+    
+    # Construct the MongoDB URI
+    MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_CLUSTER}/{MONGO_DBNAME}?retryWrites=true&w=majority"
     

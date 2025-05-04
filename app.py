@@ -1,8 +1,11 @@
+from bson import ObjectId
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 import requests
 import json
 import os
 import time
+import datetime
+import uuid
 from config import Config
 import smtplib
 from email.mime.text import MIMEText
@@ -10,10 +13,23 @@ from email.mime.multipart import MIMEMultipart
 from functools import wraps
 from stytch import Client as StytchClient
 from stytch.core.response_base import StytchError
+from flask_pymongo import PyMongo
 
 app = Flask(__name__)
 app.config.from_object(Config)
 app.secret_key = app.config['SECRET_KEY']
+
+# Configure MongoDB
+# Configure MongoDB - FIXED VERSION
+# Debug logging for MongoDB configuration
+# print(f"MongoDB URI configured: {'Yes' if app.config.get('MONGO_URI') else 'No'}")
+# if app.config.get('MONGO_URI'):
+#     # Only log first few characters to avoid exposing credentials
+#     app.logger.info(f"MongoDB URI starts with: {app.config.get('MONGO_URI')[:15]}...")
+
+# Then configure Mon
+app.config["MONGO_URI"] = Config.MONGO_URI  # Directly use the Config class
+mongo = PyMongo(app)
 
 # Configure API endpoints via Cloudflare AI Gateway
 openai_endpoint = f"https://gateway.ai.cloudflare.com/v1/{app.config['CLOUDFLARE_ACCOUNT_ID']}/{app.config['CLOUDFLARE_GATEWAY_ID']}/openai/v1/chat/completions"
@@ -35,6 +51,27 @@ def login_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/test_mongo')
+def test_mongo():
+    try:
+        # List all collections in the database
+        collections = mongo.db.list_collection_names()
+        
+        # Get count of bounties in the database
+        bounty_count = mongo.db.bounties.count_documents({})
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'MongoDB connection working properly',
+            'collections': collections,
+            'bounty_count': bounty_count
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'MongoDB connection failed: {str(e)}'
+        }), 500
 
 def is_authenticated():
     """Check if the user is authenticated by validating Stytch session"""
@@ -266,8 +303,13 @@ def logout():
 def account():
     """Display user account information"""
     user_email = get_user_email()
-    return render_template('account.html', email=user_email)
-
+    
+    # Get user's bounties from MongoDB
+    user_bounties = list(mongo.db.bounties.find({"user_email": user_email}).sort("created_at", -1))
+    
+    return render_template('account.html', 
+                          email=user_email, 
+                          bounties=user_bounties)
 @app.route('/')
 def index():
     """Render the main page"""
@@ -284,6 +326,17 @@ def index():
                           danger_levels=danger_levels,
                           is_authenticated=is_authenticated(),
                           user_email=user_email)
+
+def convert_mongo_doc_for_session(doc):
+    """Convert MongoDB document to be JSON serializable"""
+    if isinstance(doc, dict):
+        return {k: convert_mongo_doc_for_session(v) for k, v in doc.items()}
+    elif isinstance(doc, list):
+        return [convert_mongo_doc_for_session(item) for item in doc]
+    elif isinstance(doc, ObjectId):
+        return str(doc)
+    else:
+        return doc
 
 @app.route('/generate_bounty', methods=['POST'])
 @login_required
@@ -314,6 +367,7 @@ def generate_bounty():
         # Add species to the target details
         target_details['species'] = species
         target_details['bounty_value'] = bounty_value
+        target_details['danger_level'] = danger_level
         
         # Generate target image
         image_url = generate_target_image(target_details)
@@ -333,10 +387,25 @@ def generate_bounty():
             
         target_details['image_url'] = image_url
         
-        # Store in session for potential later use
-        session['bounty'] = target_details
-        
+        # Add metadata for MongoDB
         user_email = get_user_email()
+        bounty_id = str(uuid.uuid4())
+        target_details['bounty_id'] = bounty_id
+        target_details['user_email'] = user_email
+        
+        # Fix: Use timezone-aware datetime
+        target_details['created_at'] = datetime.datetime.now(datetime.UTC)
+        
+        # Save the bounty to MongoDB
+        result = mongo.db.bounties.insert_one(target_details)
+        
+        # Fix: Store a JSON-serializable version of the document in session
+        # Convert ObjectId to string
+        session_safe_target = target_details.copy()
+        session_safe_target['_id'] = str(result.inserted_id)
+        
+        # Store in session for potential later use
+        session['bounty'] = session_safe_target
         
         return render_template('bounty.html', 
                               bounty=target_details, 
@@ -344,7 +413,6 @@ def generate_bounty():
                               user_email=user_email)
     
     return redirect(url_for('index'))
-
 
 @app.template_filter('format_number')
 def format_number_filter(value):
@@ -360,6 +428,62 @@ def download_bounty():
         bounty = session['bounty']
         return jsonify(bounty)
     return redirect(url_for('index'))
+
+
+@app.route('/view_bounty/<bounty_id>')
+@login_required
+def view_bounty(bounty_id):
+    """View a specific bounty from user's collection"""
+    user_email = get_user_email()
+    
+    # Find the bounty in MongoDB
+    bounty = mongo.db.bounties.find_one({
+        "bounty_id": bounty_id,
+        "user_email": user_email
+    })
+    
+    if not bounty:
+        flash("Bounty not found or you don't have permission to view it", "error")
+        return redirect(url_for('account'))
+    
+    # Convert MongoDB document to be JSON serializable for session storage
+    session_safe_bounty = {}
+    for key, value in bounty.items():
+        if key == '_id':
+            session_safe_bounty[key] = str(value)  # Convert ObjectId to string
+        elif isinstance(value, datetime.datetime):
+            session_safe_bounty[key] = value.isoformat()  # Convert datetime to string
+        else:
+            session_safe_bounty[key] = value
+    
+    # Store in session for potential later use (like download)
+    session['bounty'] = session_safe_bounty
+    
+    return render_template('bounty.html', 
+                          bounty=bounty, 
+                          is_authenticated=is_authenticated(),
+                          user_email=user_email,
+                          from_collection=True)
+
+
+@app.route('/delete_bounty/<bounty_id>', methods=['POST'])
+@login_required
+def delete_bounty(bounty_id):
+    """Delete a bounty from user's collection"""
+    user_email = get_user_email()
+    
+    # Delete the bounty from MongoDB
+    result = mongo.db.bounties.delete_one({
+        "bounty_id": bounty_id,
+        "user_email": user_email
+    })
+    
+    if result.deleted_count == 1:
+        flash("Bounty successfully deleted from your collection", "success")
+    else:
+        flash("Failed to delete bounty or bounty not found", "error")
+    
+    return redirect(url_for('account'))
 
 @app.route('/get_yoda_advice/<bounty_id>', methods=['GET'])
 @login_required
