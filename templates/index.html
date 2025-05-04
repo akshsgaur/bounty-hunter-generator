@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Wars Bounty Hunter Target Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="stars-small"></div>
+    <div class="stars-medium"></div>
+    <div class="stars-large"></div>
+    <div class="twinkling"></div>
+    <div class="nebula"></div>
+    
+    <div class="container">
+        <div class="intro">
+            <img src="static/img/maxresdefault-13.jpg" alt="Star Wars" class="logo-image" width="300" height="200">
+            <h2>BOUNTY HUNTER TARGET GENERATOR</h2>
+        </div>
+        
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
+        
+        <div class="form-container">
+            <form action="{{ url_for('generate_bounty') }}" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="species">Species:</label>
+                        <select id="species" name="species" required>
+                            {% for species in species_list %}
+                                <option value="{{ species }}">{{ species }}</option>
+                            {% endfor %}
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="danger_level">Danger Level:</label>
+                        <select id="danger_level" name="danger_level" required>
+                            {% for level in danger_levels %}
+                                <option value="{{ level }}" {% if level == 'Medium' %}selected{% endif %}>{{ level }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bounty_value">Reward (Credits):</label>
+                        <input type="number" id="bounty_value" name="bounty_value" value="5000" min="500" step="500" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_known_location">Last Known Location:</label>
+                        <input type="text" id="last_known_location" name="last_known_location" placeholder="e.g. Mos Eisley, Tatooine">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="special_skills">Special Skills or Abilities:</label>
+                        <textarea id="special_skills" name="special_skills" placeholder="What makes this target dangerous or unique?"></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="known_associates">Known Associates:</label>
+                        <textarea id="known_associates" name="known_associates" placeholder="Any known connections or allies?"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="generate-btn">Generate Bounty</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

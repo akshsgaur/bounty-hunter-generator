@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bounty: {{ bounty.name }} - Star Wars Bounty Hunter Target Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="stars-small"></div>
+    <div class="stars-medium"></div>
+    <div class="stars-large"></div>
+    <div class="twinkling"></div>
+    <div class="nebula"></div>
+    
+    <div class="container">
+        <div class="bounty-card">
+            <div class="bounty-header">
+                <h1>WANTED</h1>
+                <h2>{{ bounty.name }}</h2>
+                <h3>AKA: {{ bounty.title }}</h3>
+                <div class="reward">Reward: {{ bounty.bounty_value|int|format_number }} Credits</div>
+            </div>
+            
+            <div class="bounty-content">
+                <div class="target-image">
+                    {% if bounty.image_url %}
+                        <img src="{{ bounty.image_url }}" alt="Image of {{ bounty.name }}">
+                    {% else %}
+                        <div class="no-image">Image unavailable</div>
+                    {% endif %}
+                </div>
+                
+                <div class="target-info">
+                    <div class="info-section">
+                        <div class="info-label">Species:</div>
+                        <div class="info-value">{{ bounty.species }}</div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-label">Last Seen:</div>
+                        <div class="info-value">{{ bounty.lastSeen }}</div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-label">Known Crimes:</div>
+                        <div class="info-value">{{ bounty.crimes }}</div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-label">Weapons:</div>
+                        <div class="info-value">{{ bounty.weapons }}</div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-label">Special Caution:</div>
+                        <div class="info-value">{{ bounty.cautionNotes }}</div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <div class="info-label">Background:</div>
+                        <div class="info-value">{{ bounty.backstory }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Yoda Advice Section -->
+            <div class="yoda-advice-section">
+                <h3>Master Yoda's Wisdom</h3>
+                <button id="yoda-advice-btn" class="yoda-btn">Seek Yoda's Guidance</button>
+                <div id="yoda-advice-text" class="yoda-advice hidden"></div>
+                <audio id="yoda-audio" class="hidden"></audio>
+            </div>
+            <div class="email-bounty-section" style="margin-top: 40px; text-align: center; border-top: 2px solid #FFD700; padding-top: 30px;">
+                <h3 style="color: #FFD700; font-size: 1.8rem; margin-bottom: 10px; letter-spacing: 2px; text-shadow: 0 0 10px #FFD700;">Send Bounty Intel</h3>
+                <p style="color: #DDD; margin-bottom: 20px; font-size: 1.1rem;">Share this bounty with fellow hunters</p>
+                <div class="email-form" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <input type="email" id="email-input" placeholder="Enter recipient's email" style="padding: 12px 20px; width: 350px; background-color: rgba(0, 0, 0, 0.7); border: 2px solid #FFD700; border-radius: 5px; color: #FFF; font-family: inherit; font-size: 1rem;">
+                    <button id="send-email-btn" class="send-btn" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; border: 2px solid #FFD700; padding: 12px 30px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; cursor: pointer; border-radius: 5px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); min-width: 160px;">Transmit Bounty</button>
+                </div>
+                <div id="email-status" class="hidden"></div>
+            </div>
+            
+            <div class="bounty-footer">
+                <div class="issuer">Bounty posted by: {{ bounty.issuer }}</div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('download_bounty') }}" class="download-btn">Download Bounty Data</a>
+                <a href="{{ url_for('index') }}" class="back-btn">Generate Another</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
