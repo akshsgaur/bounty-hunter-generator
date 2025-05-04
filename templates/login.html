@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Star Wars Bounty Hunter Target Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="stars-small"></div>
+    <div class="stars-medium"></div>
+    <div class="stars-large"></div>
+    <div class="twinkling"></div>
+    <div class="nebula"></div>
+    
+    <div class="container">
+        <div class="intro">
+            <img src="static/img/maxresdefault-13.jpg" alt="Star Wars" class="logo-image" width="300" height="200">
+            <h2>BOUNTY HUNTER ACCESS PORTAL</h2>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{% if category == 'error' %}error-message{% else %}success-message{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="form-container">
+            {% if email_sent %}
+                <div class="success-message">
+                    <h3>Magic Link Sent!</h3>
+                    <p>Check your email inbox for a secure login link.</p>
+                    <p>If you don't see it, check your spam folder or <a href="{{ url_for('login') }}">try again</a>.</p>
+                </div>
+            {% else %}
+                <form action="{{ url_for('login') }}" method="post">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="email">Enter Your Galactic ID (Email):</label>
+                            <input type="email" id="email" name="email" required placeholder="your.name@galaxy.com">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="generate-btn">
