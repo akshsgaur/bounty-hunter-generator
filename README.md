@@ -1,11 +1,11 @@
 
 
 
-## Star Wars Bounty Hunter Generator 🚀
+## Star Wars Bounty Hunter Generator 
 
 A Flask-based web application that generates detailed Star Wars bounty targets using AI. Create custom bounties with backstories, images, and even get tactical advice from Master Yoda!
 
-## Features ✨
+## Features 
 
 - **AI-Powered Target Generation**: Uses GPT-4.1 to create detailed bounty descriptions and backstories
 - **AI Image Generation**: Creates unique target images using Replicate's Stable Diffusion
@@ -16,7 +16,7 @@ A Flask-based web application that generates detailed Star Wars bounty targets u
 - **MongoDB Integration**: Persistent storage for bounty collections
 - **Responsive Design**: Works on desktop and mobile devices
 
-## Prerequisites 🛠️
+## Prerequisites 
 
 Before installation, ensure you have:
 - Python 3.8 or higher
@@ -29,7 +29,7 @@ Before installation, ensure you have:
   - Gmail (for sending emails)
   - MongoDB Atlas (or local MongoDB)
 
-## Installation Guide 📝
+## Installation Guide 
 
 1. **Clone the Repository**
    ```bash
@@ -120,7 +120,7 @@ The application uses several external APIs:
 - Stytch for authentication
 - Cloudflare AI Gateway for API management
 
-## Contributing 🤝
+## Contributing 
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -134,7 +134,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments 🙏
+## Acknowledgments 
 
 - Star Wars and all related properties are trademarks of Lucasfilm Ltd.
 - Special thanks to the Flask, MongoDB, and Python communities
