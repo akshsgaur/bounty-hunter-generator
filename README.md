@@ -139,5 +139,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Star Wars and all related properties are trademarks of Lucasfilm Ltd.
 - Special thanks to the Flask, MongoDB, and Python communities
 ```
-
-This README provides comprehensive setup instructions while maintaining an engaging Star Wars theme. The emojis and clear formatting make it visually appealing and easy to follow. The installation guide is detailed enough for both beginners and experienced developers to get the application running.
