@@ -1,6 +1,6 @@
-Here's a comprehensive README.md file for the Star Wars Bounty Hunter Generator:
 
-```
+
+``` markdown
 # Star Wars Bounty Hunter Generator 🚀
 
 A Flask-based web application that generates detailed Star Wars bounty targets using AI. Create custom bounties with backstories, images, and even get tactical advice from Master Yoda!
