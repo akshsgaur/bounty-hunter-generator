@@ -5,11 +5,11 @@
 
 A Flask-based web application that generates detailed Star Wars bounty targets using AI. Create custom bounties with backstories, images, and even get tactical advice from Master Yoda!
 
-![Star Wars Bounty Hunter Generator](static/img/maxresdefault-13.jpg)
+
 
 ## Features ✨
 
-- **AI-Powered Target Generation**: Uses GPT-4 to create detailed bounty descriptions and backstories
+- **AI-Powered Target Generation**: Uses GPT-4.1 to create detailed bounty descriptions and backstories
 - **AI Image Generation**: Creates unique target images using Replicate's Stable Diffusion
 - **Secure Authentication**: Passwordless login via Stytch magic links
 - **Personal Bounty Collection**: Save and manage your generated bounties
